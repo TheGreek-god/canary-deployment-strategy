@@ -94,6 +94,10 @@ spec:
             memory: "256Mi"
             
 ```
+You can apply this file using:
+```
+kubectl apply -f stable-version.yaml
+```
 
 Deploy Version 2 (Canary):
 ```
@@ -130,7 +134,10 @@ spec:
             cpu: "200m"
             memory: "256Mi"
 ```
-
+You can apply this file using:
+```
+kubectl apply -f canary-version.yaml
+```
 ### Step 5: Expose the Applications Using Services
 
 Create a Service to expose both the versions of the application. Here’s the Service definition for the canary and stable versions.
@@ -151,7 +158,7 @@ spec:
 ```
 Apply the services with:
 ```
-kubectl apply -f service.yaml
+kubectl apply -f combined-service.yaml
 ```
 ### Step 6: Set Up Ingress Resources
 
@@ -206,6 +213,10 @@ spec:
             name: online-shop-service
             port:
               number: 80
+```
+You can apply this file using:
+```
+kubectl apply -f ingress.yaml
 ```
 ### Step 7: Access the Application Locally
 
