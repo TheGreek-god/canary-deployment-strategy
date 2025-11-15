@@ -1,3 +1,52 @@
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: online-shop-ingress
+#   namespace: canary-deployment
+#   annotations:
+#     nginx.ingress.kubernetes.io/rewrite-target: /
+#     nginx.ingress.kubernetes.io/ssl-redirect: "false" # Optional, if you don't have SSL
+# spec:
+#   ingressClassName: nginx
+#   rules:
+#   - host: localhost  # Use localhost for local testing
+#     http:
+#       paths:
+#       - pathType: Prefix
+#         path: /
+#         backend:
+#           service:
+#             name: online-shop-service  # Service name pointing to the v1 (stable) deployment
+#             port:
+#               number: 80
+
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: online-shop-canary-ingress
+#   namespace: canary-deployment
+#   annotations:
+#     nginx.ingress.kubernetes.io/canary: "true"  # This marks this as a canary Ingress
+#     nginx.ingress.kubernetes.io/canary-weight: "100"  # 10% of traffic to the canary version
+#     nginx.ingress.kubernetes.io/rewrite-target: /
+# spec:
+#   ingressClassName: nginx
+#   rules:
+#   - host: localhost  # Same localhost to split traffic for local setup
+#     http:
+#       paths:
+#       - pathType: Prefix
+#         path: /
+#         backend:
+#           service:
+#             name: online-shop-service  # Service name pointing to the v2 (canary) deployment
+#             port:
+#               number: 80
+
+# -----------------------------
+# Stable v1 Ingress
+# -----------------------------
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -5,41 +54,45 @@ metadata:
   namespace: canary-deployment
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "false" # Optional, if you don't have SSL
+    nginx.ingress.kubernetes.io/ssl-redirect: "false" # Optional
 spec:
   ingressClassName: nginx
   rules:
-  - host: localhost  # Use localhost for local testing
+  - host: localhost
     http:
       paths:
       - pathType: Prefix
         path: /
         backend:
           service:
-            name: online-shop-service  # Service name pointing to the v1 (stable) deployment
+            name: online-shop-v1   # <-- Stable Service
             port:
               number: 80
 
 ---
+
+# -----------------------------
+# Canary v2 Ingress
+# -----------------------------
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: online-shop-canary-ingress
   namespace: canary-deployment
   annotations:
-    nginx.ingress.kubernetes.io/canary: "true"  # This marks this as a canary Ingress
-    nginx.ingress.kubernetes.io/canary-weight: "10"  # 10% of traffic to the canary version
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "10"  # 100% traffic to canary (adjust as needed)
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   rules:
-  - host: localhost  # Same localhost to split traffic for local setup
+  - host: localhost
     http:
       paths:
       - pathType: Prefix
         path: /
         backend:
           service:
-            name: online-shop-service  # Service name pointing to the v2 (canary) deployment
+            name: online-shop-v2   # <-- Canary Service
             port:
               number: 80
